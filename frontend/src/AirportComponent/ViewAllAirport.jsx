@@ -1,78 +1,43 @@
 import { useState, useEffect } from "react";
-import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
+import API_BASE_URL from "../config";
 
 const ViewAllAirport = () => {
   const [allAirports, setAllAirports] = useState([]);
 
-  const retrieveAllAirport = async () => {
-    const response = await axios.get("http://localhost:8080/api/airport/fetch/all");
-    console.log(response.data);
-    return response.data;
-  };
-
   useEffect(() => {
-    const getAllAirports = async () => {
-      const allAirports = await retrieveAllAirport();
-      if (allAirports) {
-        setAllAirports(allAirports.airports);
-      }
-    };
-
-    getAllAirports();
+    axios.get(`${API_BASE_URL}/api/airport/fetch/all`)
+      .then(r => setAllAirports(r.data.airports || []))
+      .catch(() => {});
   }, []);
 
   return (
-    <div>
-      <div className="mt-2">
-        <div
-          className="card form-card ms-5 me-5 mb-5 custom-bg border-color "
-          style={{
-            height: "30rem",
-          }}
-        >
-          <div className="card-header custom-bg-text text-center bg-color">
-            <h2>All Airports</h2>
-          </div>
-          <div
-            className="card-body"
-            style={{
-              overflowY: "auto",
-            }}
-          >
-            <div className="table-responsive">
-              <table className="table table-hover text-color text-center">
-                <thead className="table-bordered border-color bg-color custom-bg-text">
-                  <tr>
-                    <th scope="col">Airport</th>
-                    <th scope="col">Airport Location</th>
-                    <th scope="col">Airport Code</th>
-                    <th scope="col">Airport Address</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {allAirports.map((airport) => {
-                    return (
-                      <tr>
-                        <td>
-                          <b>{airport.name}</b>
-                        </td>
-                        <td>
-                          <b>{airport.location}</b>
-                        </td>
-                        <td>
-                          <b>{airport.code}</b>
-                        </td>
-                        <td>
-                          <b>{airport.address}</b>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
+    <div className="page-wrapper">
+      <div style={{ marginBottom: "28px" }}>
+        <h1 className="section-heading">All Airports</h1>
+        <p className="section-sub">Registered airports</p>
+      </div>
+      <div className="glass-card" style={{ padding: 0, overflow: "hidden" }}>
+        <div style={{ overflowX: "auto" }}>
+          <table className="table-custom">
+            <thead>
+              <tr>
+                {["Airport Name", "Location", "Code", "Address"].map(h => <th key={h}>{h}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {allAirports.length === 0 ? (
+                <tr><td colSpan={4} style={{ textAlign: "center", padding: "40px", color: "var(--text-secondary)" }}>No airports found</td></tr>
+              ) : allAirports.map((a, i) => (
+                <tr key={i}>
+                  <td><b style={{ color: "var(--accent-blue-bright)" }}>{a.name}</b></td>
+                  <td>{a.location}</td>
+                  <td><span className="badge-status badge-scheduled">{a.code}</span></td>
+                  <td>{a.address}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

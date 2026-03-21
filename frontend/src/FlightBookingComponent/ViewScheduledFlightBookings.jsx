@@ -1,205 +1,96 @@
-import React from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useState, useEffect } from "react";
+import API_BASE_URL from "../config";
 
 const ViewScheduledFlightBookings = () => {
   const navigate = useNavigate();
-
   const location = useLocation();
   const flight = location.state;
-
   const [scheduledFlightBookings, setScheduledFlightBookings] = useState([]);
-
   const [flightSeatDetail, setFlightSeatDetail] = useState({});
 
-  const retrieveScheduleFlightBookings = async () => {
-    const response = await axios.get(
-      "http://localhost:8080/api/flight/book/fetch?flightId=" + flight.id
-    );
-    console.log(response.data);
-    return response.data;
-  };
-
-  const retrieveFlightSeatDetails = async () => {
-    const response = await axios.get(
-      "http://localhost:8080/api/flight/book/fetch/seatDetails?flightId=" +
-        flight.id
-    );
-    console.log(response.data);
-    return response.data;
-  };
+  const formatDate = (epoch) => new Date(Number(epoch)).toLocaleString();
 
   useEffect(() => {
-    const getFlightBookings = async () => {
-      const flightTickets = await retrieveScheduleFlightBookings();
-      if (flightTickets) {
-        setScheduledFlightBookings(flightTickets.bookings);
-      }
-    };
-
-    const getFlightSeatDetails = async () => {
-      const flightSeatDetails = await retrieveFlightSeatDetails();
-      if (flightSeatDetails) {
-        setFlightSeatDetail(flightSeatDetails);
-      }
-    };
-
-    getFlightBookings();
-    getFlightSeatDetails();
+    axios.get(`${API_BASE_URL}/api/flight/book/fetch?flightId=${flight.id}`)
+      .then(r => setScheduledFlightBookings(r.data.bookings || [])).catch(() => {});
+    axios.get(`${API_BASE_URL}/api/flight/book/fetch/seatDetails?flightId=${flight.id}`)
+      .then(r => setFlightSeatDetail(r.data || {})).catch(() => {});
   }, []);
 
-  const formatDateFromEpoch = (epochTime) => {
-    const date = new Date(Number(epochTime));
-    const formattedDate = date.toLocaleString(); // Adjust the format as needed
-
-    return formattedDate;
-  };
-
-  const bookFlightTicket = () => {
-    navigate("/passenger/flight/book", { state: flight });
-  };
+  const SeatRow = ({ label, value }) => (
+    <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+      <span style={{ color: "var(--text-secondary)", fontSize: "0.82rem" }}>{label}</span>
+      <span style={{ color: "var(--text-primary)", fontWeight: 600 }}>{value}</span>
+    </div>
+  );
 
   return (
-    <div className="mt-3">
-      <div className="d-flex justify-content-center align-items-center">
-        <div
-          className="card form-card ms-2 me-2 mb-5 custom-bg border-color "
-          style={{
-            height: "45rem",
-            width: "40rem",
-          }}
-        >
-          <div className="card-header custom-bg-text text-center bg-color">
-            <h2>Check Flight Ticket Availablity</h2>
-          </div>
-          <div className="card-body" style={{ overflowY: "auto" }}>
-            <div className="row">
-              <div className="col-md-6">
-                <div className="mt-3">
-                  <b>Flight Number:</b>
-                  <h5 className="text-color"> {flight.flightNumber}</h5>
-                </div>
-                <div className="mt-3">
-                  <b>Airplane:</b>
-                  <h5 className="text-color"> {flight.airplane.name}</h5>
-                </div>
-                <div className="mt-3">
-                  <b>Departure Airport:</b>
-                  <h5 className="text-color">{flight.departureAirport.name}</h5>
-                </div>
-                <div className="mt-3">
-                  <b>Arrival Airport:</b>
-                  <h5 className="text-color"> {flight.arrivalAirport.name}</h5>
-                </div>
-                <div className="mt-3">
-                  <b>Departure Timing:</b>
-                  <h5 className="text-color">
-                    {formatDateFromEpoch(flight.departureTime)}
-                  </h5>
-                </div>
-                <div className="mt-3">
-                  <b>Arrival Timing:</b>
-                  <h5 className="text-color">
-                    {formatDateFromEpoch(flight.arrivalTime)}
-                  </h5>
-                </div>
+    <div className="page-wrapper">
+      <div style={{ marginBottom: "28px" }}>
+        <h1 className="section-heading">Flight Seat Availability</h1>
+        <p className="section-sub">Flight {flight.flightNumber} — {flight.departureAirport?.name} → {flight.arrivalAirport?.name}</p>
+      </div>
 
-                <div className="mt-3">
-                  <b>Economy Seat Price (in Rs):</b>
-                  <h5 className="text-color"> {flight.economySeatFare}</h5>
-                </div>
-                <div className="mt-3">
-                  <b>Business Seat Price (in Rs):</b>
-                  <h5 className="text-color"> {flight.businessSeatFare}</h5>
-                </div>
-                <div className="mt-3">
-                  <b>First Class Seat Price (in Rs):</b>
-                  <h5 className="text-color"> {flight.firstClassSeatFare}</h5>
-                </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "20px" }}>
 
-                <hr className="my-4" />
-                <div className="mt-3">
-                  <b>Total Seat:</b>
-                  <h5 className="text-color">{flight.totalSeat}</h5>
-                </div>
-                <div className="mt-3">
-                  <b>Total Economy Seat:</b>
-                  <h5 className="text-color">
-                    {flightSeatDetail.economySeats}
-                  </h5>
-                </div>
-                <div className="mt-3">
-                  <b>Total Economy Seat Available:</b>
-                  <h5 className="text-color">
-                    {flightSeatDetail.economySeatsAvailable}
-                  </h5>
-                </div>
-                <div className="mt-3">
-                  <b>Total Business Seat:</b>
-                  <h5 className="text-color">
-                    {flightSeatDetail.businessSeats}
-                  </h5>
-                </div>
-                <div className="mt-3">
-                  <b>Total Business Seat Available:</b>
-                  <h5 className="text-color">
-                    {flightSeatDetail.businessSeatsAvailable}
-                  </h5>
-                </div>
-                <div className="mt-3">
-                  <b>Total First Class Seat:</b>
-                  <h5 className="text-color">
-                    {flightSeatDetail.firstClassSeats}
-                  </h5>
-                </div>
-                <div className="mt-3">
-                  <b>Total First Class Seat Available:</b>
-                  <h5 className="text-color">
-                    {flightSeatDetail.firstClassSeatsAvailable}
-                  </h5>
-                </div>
-              </div>
-              <div className="col-md-5">
-                <div className="table-responsive" style={{ float: "right" }}>
-                  <div className="text-center">
-                    <h4 className="text-color">Flight Seats</h4>
-                  </div>
-                  <table className="table table-hover text-color text-center">
-                    <thead className="table-bordered border-color bg-color custom-bg-text">
-                      <tr>
-                        <th scope="col">Flight Seat</th>
-                        <th scope="col">Booking Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {scheduledFlightBookings.map((booking) => {
-                        return (
-                          <tr>
-                            <td>
-                              <b>{booking.airplaneSeatNo.seatNo}</b>
-                            </td>
-                            <td>
-                              <b>{booking.status}</b>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+        {/* Flight Info */}
+        <div className="glass-card" style={{ padding: "24px" }}>
+          <h3 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "0.95rem", marginBottom: "16px", color: "var(--accent-blue-bright)" }}>✈ Flight Details</h3>
+          <SeatRow label="Flight No." value={flight.flightNumber} />
+          <SeatRow label="Airplane" value={flight.airplane?.name} />
+          <SeatRow label="From" value={flight.departureAirport?.name} />
+          <SeatRow label="To" value={flight.arrivalAirport?.name} />
+          <SeatRow label="Departure" value={formatDate(flight.departureTime)} />
+          <SeatRow label="Arrival" value={formatDate(flight.arrivalTime)} />
+          <SeatRow label="Economy Fare" value={`₹${flight.economySeatFare}`} />
+          <SeatRow label="Business Fare" value={`₹${flight.businessSeatFare}`} />
+          <SeatRow label="First Class" value={`₹${flight.firstClassSeatFare}`} />
+        </div>
+
+        {/* Seat Availability */}
+        <div className="glass-card" style={{ padding: "24px" }}>
+          <h3 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "0.95rem", marginBottom: "16px", color: "var(--accent-gold)" }}>💺 Seat Availability</h3>
+          <SeatRow label="Total Seats" value={flight.totalSeat} />
+          <SeatRow label="Economy Seats" value={flightSeatDetail.economySeats} />
+          <SeatRow label="Economy Available" value={flightSeatDetail.economySeatsAvailable} />
+          <SeatRow label="Business Seats" value={flightSeatDetail.businessSeats} />
+          <SeatRow label="Business Available" value={flightSeatDetail.businessSeatsAvailable} />
+          <SeatRow label="First Class Seats" value={flightSeatDetail.firstClassSeats} />
+          <SeatRow label="First Class Available" value={flightSeatDetail.firstClassSeatsAvailable} />
+
+          <button onClick={() => navigate("/passenger/flight/book", { state: flight })}
+            className="btn-gold-custom" style={{ width: "100%", padding: "13px", marginTop: "20px", fontSize: "0.95rem" }}>
+            Book Ticket →
+          </button>
+        </div>
+
+        {/* Booked Seats */}
+        <div className="glass-card" style={{ padding: "24px" }}>
+          <h3 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "0.95rem", marginBottom: "16px", color: "var(--text-primary)" }}>🎫 Booked Seats</h3>
+          {scheduledFlightBookings.length === 0 ? (
+            <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem" }}>No seats booked yet</p>
+          ) : (
+            <div style={{ overflowY: "auto", maxHeight: "300px" }}>
+              <table className="table-custom">
+                <thead>
+                  <tr>
+                    <th>Seat</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {scheduledFlightBookings.map((b, i) => (
+                    <tr key={i}>
+                      <td>{b.airplaneSeatNo?.seatNo}</td>
+                      <td><span className="badge-status badge-confirmed">{b.status}</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-
-            <div className="mt-3 d-flex justify-content-center align-items-center">
-              <button
-                onClick={() => bookFlightTicket()}
-                className="btn btn-lg bg-color custom-bg-text"
-              >
-                Book Ticket
-              </button>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

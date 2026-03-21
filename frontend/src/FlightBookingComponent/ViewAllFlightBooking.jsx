@@ -1,212 +1,96 @@
-import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { useState, useEffect } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import axios from "axios";
+import { ToastContainer } from "react-toastify";
+import API_BASE_URL from "../config";
 
 const ViewAllFlightBooking = () => {
-  const navigate = useNavigate();
-
   const admin_token = sessionStorage.getItem("admin-jwtToken");
-
   const [bookedFlights, setBookedFlights] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const retrieveAllBookedFlights = async () => {
-    const response = await axios.get(
-      "http://localhost:8080/api/flight/book/fetch/all",
-      {
-        headers: {
-          Authorization: "Bearer " + admin_token, // Replace with your actual JWT token
-        },
-      }
-    );
-    console.log(response.data);
-    return response.data;
-  };
-
-  const convertToEpochTime = (dateString) => {
-    const selectedDate = new Date(dateString);
-    const epochTime = selectedDate.getTime();
-    return epochTime;
-  };
+  const formatDate = (epoch) => new Date(Number(epoch)).toLocaleString();
 
   useEffect(() => {
-    const getAllBookedFlights = async () => {
-      const bookings = await retrieveAllBookedFlights();
-      if (bookings) {
-        setBookedFlights(bookings.bookings);
-      }
-    };
-
-    getAllBookedFlights();
+    axios.get(`${API_BASE_URL}/api/flight/book/fetch/all`, {
+      headers: { Authorization: "Bearer " + admin_token },
+    }).then(r => { setBookedFlights(r.data.bookings || []); setLoading(false); })
+      .catch(() => setLoading(false));
   }, []);
 
-  const formatDateFromEpoch = (epochTime) => {
-    const date = new Date(Number(epochTime));
-    const formattedDate = date.toLocaleString(); // Adjust the format as needed
-
-    return formattedDate;
+  const downloadTicket = (bookingId) => {
+    fetch(`${API_BASE_URL}/api/flight/book/download/ticket?bookingId=${bookingId}`, {
+      method: "GET",
+      headers: { Authorization: "Bearer " + admin_token },
+    })
+      .then(r => r.blob())
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url; link.download = "ticket.pdf";
+        document.body.appendChild(link); link.click();
+        URL.revokeObjectURL(url); document.body.removeChild(link);
+      })
+      .catch(e => console.error("Download error:", e));
   };
 
-  const downloadTicket = (bookingId) => {
-    fetch(
-      `http://localhost:8080/api/flight/book/download/ticket?bookingId=${bookingId}`,
-      {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + admin_token,
-        },
-      }
-    )
-      .then((response) => response.blob())
-      .then((blob) => {
-        // Create a temporary URL for the blob
-        const url = window.URL.createObjectURL(blob);
-
-        // Create a temporary <a> element to trigger the download
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = "ticket.pdf"; // Specify the desired filename here
-
-        // Append the link to the document and trigger the download
-        document.body.appendChild(link);
-        link.click();
-
-        // Clean up the temporary URL and link
-        URL.revokeObjectURL(url);
-        document.body.removeChild(link);
-      })
-      .catch((error) => {
-        console.error("Download error:", error);
-      });
+  const getStatusClass = (s) => {
+    const map = { Confirmed: "badge-confirmed", Pending: "badge-pending", Cancelled: "badge-cancelled", Waiting: "badge-waiting" };
+    return map[s] || "badge-scheduled";
   };
 
   return (
-    <div className="mt-3">
-      <div
-        className="card form-card ms-2 me-2 mb-5 custom-bg border-color "
-        style={{
-          height: "45rem",
-        }}
-      >
-        <div className="card-header custom-bg-text text-center bg-color">
-          <h2>Booked Flights</h2>
-        </div>
-        <div
-          className="card-body"
-          style={{
-            overflowY: "auto",
-          }}
-        >
-          <div className="table-responsive mt-3">
-            <table className="table table-hover text-color text-center">
-              <thead className="table-bordered border-color bg-color custom-bg-text">
+    <div className="page-wrapper">
+      <div style={{ marginBottom: "28px" }}>
+        <h1 className="section-heading">All Flight Bookings</h1>
+        <p className="section-sub">{bookedFlights.length} total bookings</p>
+      </div>
+      <div className="glass-card" style={{ padding: 0, overflow: "hidden" }}>
+        <div style={{ overflowX: "auto" }}>
+          {loading ? (
+            <div style={{ textAlign: "center", padding: "60px", color: "var(--text-secondary)" }}>Loading bookings...</div>
+          ) : bookedFlights.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "60px", color: "var(--text-secondary)" }}>No bookings found</div>
+          ) : (
+            <table className="table-custom" style={{ minWidth: "1200px" }}>
+              <thead>
                 <tr>
-                  <th scope="col">Booking Id</th>
-                  <th scope="col">Passenger</th>
-                  <th scope="col">Passenger Contact</th>
-                  <th scope="col">Flight Number</th>
-                  <th scope="col">Airplane</th>
-                  <th scope="col">Airplane Registration No.</th>
-                  <th scope="col">Departure Time</th>
-                  <th scope="col">Arrival Time</th>
-                  <th scope="col">Source Airport</th>
-                  <th scope="col">Destination Airport</th>
-                  <th scope="col">Flight Class</th>
-                  <th scope="col">Seat Fare (Rs.)</th>
-                  <th scope="col">Total Passenger</th>
-                  <th scope="col">Booking Time</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Action</th>
+                  {["Booking ID", "Passenger", "Contact", "Flight No.", "Airplane", "Departure", "Arrival", "From", "To", "Class", "Fare", "Seat", "Booking Time", "Status", "Action"].map(h => (
+                    <th key={h}>{h}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {bookedFlights.map((book) => {
-                  return (
-                    <tr>
-                      <td>
-                        <b>{book.bookingId}</b>
-                      </td>
-                      <td>
-                        <b>{book.passenger.name}</b>
-                      </td>
-                      <td>
-                        <b>{book.passenger.contact}</b>
-                      </td>
-                      <td>
-                        <b>{book.flight.flightNumber}</b>
-                      </td>
-                      <td>
-                        <b>{book.flight.airplane.name}</b>
-                      </td>
-                      <td>
-                        <b>{book.flight.airplane.registrationNumber}</b>
-                      </td>
-                      <td>
-                        <b>{formatDateFromEpoch(book.flight.departureTime)}</b>
-                      </td>
-                      <td>
-                        <b>{formatDateFromEpoch(book.flight.arrivalTime)}</b>
-                      </td>
-                      <td>
-                        <b>{book.flight.departureAirport.name}</b>
-                      </td>
-                      <td>
-                        <b>{book.flight.arrivalAirport.name}</b>
-                      </td>
-                      <td>
-                        <b>{book.flightClass}</b>
-                      </td>
-                      <td>
-                        {(() => {
-                          if (book.flightClass === "Economy") {
-                            return <b>{book.flight.economySeatFare}</b>;
-                          } else if (book.flightClass === "Business") {
-                            return <b>{book.flight.businessSeatFare}</b>;
-                          } else if (book.flightClass === "First Class") {
-                            return <b>{book.flight.firstClassSeatFare}</b>;
-                          }
-                        })()}
-                      </td>
-                      <td>
-                        {(() => {
-                          if (book.airplaneSeatNo !== null) {
-                            return <b> {book.airplaneSeatNo.seatNo}</b>;
-                          }
-                        })()}
-                      </td>
-                      <td>
-                        <b>{formatDateFromEpoch(book.bookingTime)}</b>
-                      </td>
-                      <td>
-                        <b>{book.status}</b>
-                      </td>
-                      <td>
-                        {(() => {
-                          if (book.status === "Confirmed") {
-                            return (
-                              <button
-                                onClick={() => downloadTicket(book.bookingId)}
-                                className="btn btn-sm bg-color custom-bg-text ms-2"
-                              >
-                                Download Ticket
-                              </button>
-                            );
-                          }
-                        })()}
-
-                        <ToastContainer />
-                      </td>
-                    </tr>
-                  );
-                })}
+                {bookedFlights.map((book, i) => (
+                  <tr key={i}>
+                    <td><span style={{ color: "var(--accent-blue-bright)", fontWeight: 700, fontSize: "0.8rem" }}>{book.bookingId}</span></td>
+                    <td>{book.passenger?.name}</td>
+                    <td>{book.passenger?.contact}</td>
+                    <td>{book.flight?.flightNumber}</td>
+                    <td>{book.flight?.airplane?.name}</td>
+                    <td style={{ fontSize: "0.8rem" }}>{formatDate(book.flight?.departureTime)}</td>
+                    <td style={{ fontSize: "0.8rem" }}>{formatDate(book.flight?.arrivalTime)}</td>
+                    <td>{book.flight?.departureAirport?.name}</td>
+                    <td>{book.flight?.arrivalAirport?.name}</td>
+                    <td>{book.flightClass}</td>
+                    <td>₹{book.flightClass === "Economy" ? book.flight?.economySeatFare : book.flightClass === "Business" ? book.flight?.businessSeatFare : book.flight?.firstClassSeatFare}</td>
+                    <td>{book.airplaneSeatNo?.seatNo}</td>
+                    <td style={{ fontSize: "0.8rem" }}>{formatDate(book.bookingTime)}</td>
+                    <td><span className={`badge-status ${getStatusClass(book.status)}`}>{book.status}</span></td>
+                    <td>
+                      {book.status === "Confirmed" && (
+                        <button onClick={() => downloadTicket(book.bookingId)} className="btn-primary-custom" style={{ padding: "6px 14px", fontSize: "0.78rem" }}>
+                          Download
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
-          </div>
+          )}
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };

@@ -3,328 +3,131 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import API_BASE_URL from "../config";
 
 const AddFlightForm = () => {
   const navigate = useNavigate();
-
   const admin_token = sessionStorage.getItem("admin-jwtToken");
 
   const [flight, setFlight] = useState({
-    departureTime: "",
-    arrivalTime: "",
-    departureAirportId: "",
-    arrivalAirportId: "",
-    airplaneId: "",
-    status: "",
-    economySeatFare: "",
-    businessSeatFare: "",
-    firstClassSeatFare: "",
+    departureTime: "", arrivalTime: "", departureAirportId: "",
+    arrivalAirportId: "", airplaneId: "", status: "",
+    economySeatFare: "", businessSeatFare: "", firstClassSeatFare: "",
   });
-
-  const handleUserInput = (e) => {
-    setFlight({ ...flight, [e.target.name]: e.target.value });
-  };
-
   const [departureTime, setDepartureTime] = useState("");
   const [arrivalTime, setArrivalTime] = useState("");
-
   const [allAirplanes, setAllAirplanes] = useState([]);
   const [allAirports, setAllAirports] = useState([]);
   const [allStatus, setAllStatus] = useState([]);
 
-  const retrieveAllAirplanes = async () => {
-    const response = await axios.get(
-      "http://localhost:8080/api/airplane/fetch/all",
-      {
-        headers: {
-          Authorization: "Bearer " + admin_token, // Replace with your actual JWT token
-        },
-      }
-    );
-    console.log(response.data);
-    return response.data;
-  };
-
-  const retrieveAllAirport = async () => {
-    const response = await axios.get(
-      "http://localhost:8080/api/airport/fetch/all"
-    );
-    console.log(response.data);
-    return response.data;
-  };
-
-  const retrieveAllFlightStatus = async () => {
-    const response = await axios.get(
-      "http://localhost:8080/api/flight/status/all",
-      {
-        headers: {
-          Authorization: "Bearer " + admin_token, // Replace with your actual JWT token
-        },
-      }
-    );
-    console.log(response.data);
-    return response.data;
-  };
+  const handleUserInput = (e) => setFlight({ ...flight, [e.target.name]: e.target.value });
 
   useEffect(() => {
-    const getAllAirplanes = async () => {
-      const allAirplanes = await retrieveAllAirplanes();
-      if (allAirplanes) {
-        setAllAirplanes(allAirplanes.airplanes);
-      }
-    };
-
-    const getAllAirports = async () => {
-      const allAirports = await retrieveAllAirport();
-      if (allAirports) {
-        setAllAirports(allAirports.airports);
-      }
-    };
-
-    const getAllFlightStatus = async () => {
-      const allStatuses = await retrieveAllFlightStatus();
-      if (allStatuses) {
-        setAllStatus(allStatuses);
-      }
-    };
-
-    getAllAirplanes();
-    getAllAirports();
-    getAllFlightStatus();
+    axios.get(`${API_BASE_URL}/api/airplane/fetch/all`, { headers: { Authorization: "Bearer " + admin_token } })
+      .then(r => setAllAirplanes(r.data.airplanes || [])).catch(() => {});
+    axios.get(`${API_BASE_URL}/api/airport/fetch/all`)
+      .then(r => setAllAirports(r.data.airports || [])).catch(() => {});
+    axios.get(`${API_BASE_URL}/api/flight/status/all`, { headers: { Authorization: "Bearer " + admin_token } })
+      .then(r => setAllStatus(r.data || [])).catch(() => {});
   }, []);
 
   const saveFlight = (e) => {
-    const departureEpochTime = new Date(departureTime).getTime();
-    flight.departureTime = departureEpochTime;
-
-    const arrivalEpochTime = new Date(arrivalTime).getTime();
-    flight.arrivalTime = arrivalEpochTime;
-
-    fetch("http://localhost:8080/api/flight/add", {
+    e.preventDefault();
+    flight.departureTime = new Date(departureTime).getTime();
+    flight.arrivalTime = new Date(arrivalTime).getTime();
+    fetch(`${API_BASE_URL}/api/flight/add`, {
       method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + admin_token,
-      },
+      headers: { Accept: "application/json", "Content-Type": "application/json", Authorization: "Bearer " + admin_token },
       body: JSON.stringify(flight),
     })
-      .then((result) => {
-        console.log("result", result);
-        result.json().then((res) => {
-          console.log(res);
-
-          if (res.success) {
-            console.log("Got the success response");
-
-            toast.success(res.responseMessage, {
-              position: "top-center",
-              autoClose: 1000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-            });
-
-            setTimeout(() => {
-              navigate("/admin/flight/all");
-            }, 1000); // Redirect after 3 seconds
-          } else {
-            console.log("Didn't got success response");
-            toast.error("It seems server is down", {
-              position: "top-center",
-              autoClose: 1000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-            });
-            // setTimeout(() => {
-            //   window.location.reload(true);
-            // }, 1000); // Redirect after 3 seconds
-          }
-        });
+      .then(r => r.json())
+      .then(res => {
+        if (res.success) {
+          toast.success(res.responseMessage, { position: "top-center", autoClose: 1000 });
+          setTimeout(() => navigate("/admin/flight/all"), 1000);
+        } else {
+          toast.error(res.responseMessage || "Server error", { position: "top-center", autoClose: 1000 });
+        }
       })
-      .catch((error) => {
-        console.error(error);
-        toast.error("It seems server is down", {
-          position: "top-center",
-          autoClose: 1000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-        // setTimeout(() => {
-        //   window.location.reload(true);
-        // }, 1000); // Redirect after 3 seconds
-      });
-    e.preventDefault();
+      .catch(() => toast.error("Server is down", { position: "top-center", autoClose: 1000 }));
   };
 
+  const selectStyle = { ...{ width: "100%", background: "var(--bg-input)", border: "1.5px solid var(--border-input)", borderRadius: "10px", color: "var(--text-input)", padding: "13px 16px", fontFamily: "'DM Sans', sans-serif", fontSize: "0.95rem", outline: "none" } };
+
   return (
-    <div>
-      <div className="mt-2 d-flex aligns-items-center justify-content-center ms-2 me-2 mb-2">
-        <div
-          className="card form-card border-color text-color custom-bg"
-          style={{ width: "50rem" }}
-        >
-          <div className="card-header bg-color custom-bg-text text-center">
-            <h5 className="card-title">Add Flight</h5>
-          </div>
-          <div className="card-body">
-            <form className="row g-3" onSubmit={saveFlight}>
-              <div className="col-md-6 mb-3 text-color">
-                <label htmlFor="trainId" className="form-label">
-                  <b>Airplane</b>
-                </label>
-                <select
-                  onChange={handleUserInput}
-                  className="form-control"
-                  name="airplaneId"
-                >
-                  <option value="">Select Airplane</option>
-
-                  {allAirplanes.map((airplane) => {
-                    return (
-                      <option value={airplane.id}> {airplane.name} </option>
-                    );
-                  })}
-                </select>
-              </div>
-
-              <div className="col-md-6 mb-3 text-color">
-                <label htmlFor="trainId" className="form-label">
-                  <b>Departure Airport</b>
-                </label>
-                <select
-                  onChange={handleUserInput}
-                  className="form-control"
-                  name="departureAirportId"
-                >
-                  <option value="">Select Departure Airport</option>
-
-                  {allAirports.map((airport) => {
-                    return <option value={airport.id}> {airport.name} </option>;
-                  })}
-                </select>
-              </div>
-
-              <div className="col-md-6 mb-3 text-color">
-                <label htmlFor="trainId" className="form-label">
-                  <b>Arrival Airport</b>
-                </label>
-                <select
-                  onChange={handleUserInput}
-                  className="form-control"
-                  name="arrivalAirportId"
-                >
-                  <option value="">Select Arrival Airport</option>
-
-                  {allAirports.map((airport) => {
-                    return <option value={airport.id}> {airport.name} </option>;
-                  })}
-                </select>
-              </div>
-
-              <div className="col-md-6 mb-3 text-color">
-                <label htmlFor="trainId" className="form-label">
-                  <b>Flight Status</b>
-                </label>
-                <select
-                  onChange={handleUserInput}
-                  className="form-control"
-                  name="status"
-                >
-                  <option value="">Select Status</option>
-
-                  {allStatus.map((status) => {
-                    return <option value={status}> {status} </option>;
-                  })}
-                </select>
-              </div>
-
-              <div className="col-md-6 mb-3 text-color">
-                <label htmlFor="title" className="form-label">
-                  <b>Select Departure Time</b>
-                </label>
-                <input
-                  type="datetime-local"
-                  className="form-control"
-                  value={departureTime}
-                  onChange={(e) => setDepartureTime(e.target.value)}
-                />
-              </div>
-
-              <div className="col-md-6 mb-3 text-color">
-                <label htmlFor="title" className="form-label">
-                  <b>Select Arrival Time</b>
-                </label>
-                <input
-                  type="datetime-local"
-                  className="form-control"
-                  value={arrivalTime}
-                  onChange={(e) => setArrivalTime(e.target.value)}
-                />
-              </div>
-
-              <div className="col-md-6 mb-3 text-color">
-                <b>
-                  <label className="form-label">Economy Seat Fare</label>
-                </b>
-                <input
-                  type="number"
-                  className="form-control"
-                  id="economySeatFare"
-                  name="economySeatFare"
-                  onChange={handleUserInput}
-                  value={flight.economySeatFare}
-                />
-              </div>
-
-              <div className="col-md-6 mb-3 text-color">
-                <b>
-                  <label className="form-label">Business Seat Fare</label>
-                </b>
-                <input
-                  type="number"
-                  className="form-control"
-                  id="businessSeatFare"
-                  name="businessSeatFare"
-                  onChange={handleUserInput}
-                  value={flight.businessSeatFare}
-                />
-              </div>
-
-              <div className="col-md-6 mb-3 text-color">
-                <b>
-                  <label className="form-label">First Class Seat Fare</label>
-                </b>
-                <input
-                  type="number"
-                  className="form-control"
-                  id="firstClassSeatFare"
-                  name="firstClassSeatFare"
-                  onChange={handleUserInput}
-                  value={flight.firstClassSeatFare}
-                />
-              </div>
-
-              <div className="d-flex aligns-items-center justify-content-center">
-                <input
-                  type="submit"
-                  className="btn bg-color custom-bg-text"
-                  value="Add Flight"
-                />
-              </div>
-              <ToastContainer />
-            </form>
-          </div>
-        </div>
+    <div className="page-wrapper" style={{ maxWidth: "800px" }}>
+      <div style={{ marginBottom: "28px" }}>
+        <h1 className="section-heading">Add Flight</h1>
+        <p className="section-sub">Schedule a new flight</p>
       </div>
+      <div className="glass-card" style={{ padding: "36px" }}>
+        <form onSubmit={saveFlight}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "20px", marginBottom: "20px" }}>
+
+            <div>
+              <label className="label-custom">Airplane</label>
+              <select name="airplaneId" onChange={handleUserInput} style={selectStyle} required>
+                <option value="">Select Airplane</option>
+                {allAirplanes.map(a => <option key={a.id} value={a.id} style={{ background: "#0d1526", color: "#e8eef8" }}>{a.name}</option>)}
+              </select>
+            </div>
+
+            <div>
+              <label className="label-custom">Departure Airport</label>
+              <select name="departureAirportId" onChange={handleUserInput} style={selectStyle} required>
+                <option value="">Select Departure Airport</option>
+                {allAirports.map(a => <option key={a.id} value={a.id} style={{ background: "#0d1526", color: "#e8eef8" }}>{a.name}</option>)}
+              </select>
+            </div>
+
+            <div>
+              <label className="label-custom">Arrival Airport</label>
+              <select name="arrivalAirportId" onChange={handleUserInput} style={selectStyle} required>
+                <option value="">Select Arrival Airport</option>
+                {allAirports.map(a => <option key={a.id} value={a.id} style={{ background: "#0d1526", color: "#e8eef8" }}>{a.name}</option>)}
+              </select>
+            </div>
+
+            <div>
+              <label className="label-custom">Flight Status</label>
+              <select name="status" onChange={handleUserInput} style={selectStyle} required>
+                <option value="">Select Status</option>
+                {allStatus.map(s => <option key={s} value={s} style={{ background: "#0d1526", color: "#e8eef8" }}>{s}</option>)}
+              </select>
+            </div>
+
+            <div>
+              <label className="label-custom">Departure Time</label>
+              <input type="datetime-local" className="input-custom" value={departureTime} onChange={e => setDepartureTime(e.target.value)} required />
+            </div>
+
+            <div>
+              <label className="label-custom">Arrival Time</label>
+              <input type="datetime-local" className="input-custom" value={arrivalTime} onChange={e => setArrivalTime(e.target.value)} required />
+            </div>
+
+            <div>
+              <label className="label-custom">Economy Fare (₹)</label>
+              <input type="number" name="economySeatFare" className="input-custom" onChange={handleUserInput} value={flight.economySeatFare} required />
+            </div>
+
+            <div>
+              <label className="label-custom">Business Fare (₹)</label>
+              <input type="number" name="businessSeatFare" className="input-custom" onChange={handleUserInput} value={flight.businessSeatFare} required />
+            </div>
+
+            <div>
+              <label className="label-custom">First Class Fare (₹)</label>
+              <input type="number" name="firstClassSeatFare" className="input-custom" onChange={handleUserInput} value={flight.firstClassSeatFare} required />
+            </div>
+          </div>
+
+          <button type="submit" className="btn-primary-custom" style={{ padding: "13px 40px" }}>
+            Add Flight →
+          </button>
+        </form>
+      </div>
+      <ToastContainer />
     </div>
   );
 };
