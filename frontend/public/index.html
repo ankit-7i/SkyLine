@@ -2,49 +2,39 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+
+    <!-- ✈ SkyLine SVG Favicon — inline so no extra file needed -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%232d7fff'/%3E%3Cstop offset='100%25' style='stop-color:%2300d4ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23bg)'/%3E%3Crect width='32' height='16' rx='7' fill='white' opacity='0.12'/%3E%3Cg transform='translate(16,15.5) rotate(-40) scale(0.82)'%3E%3Cpath d='M-1,9 L1,9 L1,-2 C1,-2 7,1.5 9,0 C7,-1.5 1,-5 1,-5 L1,-9 C1,-10 0.5,-11 0,-11 C-0.5,-11 -1,-10 -1,-9 L-1,-5 C-1,-5 -7,-1.5 -9,0 C-7,1.5 -1,-2 -1,-2 Z' fill='white'/%3E%3Cpath d='M-1,-0.5 L-10,4 L-10,5 L-1,2.5 Z' fill='white' opacity='0.88'/%3E%3Cpath d='M1,-0.5 L10,4 L10,5 L1,2.5 Z' fill='white' opacity='0.88'/%3E%3Cpath d='M-1,6 L-4.5,9.5 L-4.5,10.5 L-1,8 Z' fill='white' opacity='0.8'/%3E%3Cpath d='M1,6 L4.5,9.5 L4.5,10.5 L1,8 Z' fill='white' opacity='0.8'/%3E%3C/g%3E%3C/svg%3E" />
+
+    <!-- Fallback for older browsers -->
+    <link rel="shortcut icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232d7fff'/%3E%3Cg transform='translate(16,15.5) rotate(-40) scale(0.82)'%3E%3Cpath d='M-1,9 L1,9 L1,-2 C1,-2 7,1.5 9,0 C7,-1.5 1,-5 1,-5 L1,-9 C1,-10 0.5,-11 0,-11 C-0.5,-11 -1,-10 -1,-9 L-1,-5 C-1,-5 -7,-1.5 -9,0 C-7,1.5 -1,-2 -1,-2 Z' fill='white'/%3E%3Cpath d='M-1,-0.5 L-10,4 L-10,5 L-1,2.5 Z' fill='white' opacity='0.88'/%3E%3Cpath d='M1,-0.5 L10,4 L10,5 L1,2.5 Z' fill='white' opacity='0.88'/%3E%3C/g%3E%3C/svg%3E" />
+
+    <!-- Apple touch icon -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%232d7fff'/%3E%3Cg transform='translate(90,88) rotate(-40) scale(4.8)'%3E%3Cpath d='M-1,9 L1,9 L1,-2 C1,-2 7,1.5 9,0 C7,-1.5 1,-5 1,-5 L1,-9 C1,-10 0.5,-11 0,-11 C-0.5,-11 -1,-10 -1,-9 L-1,-5 C-1,-5 -7,-1.5 -9,0 C-7,1.5 -1,-2 -1,-2 Z' fill='white'/%3E%3Cpath d='M-1,-0.5 L-10,4 L-10,5 L-1,2.5 Z' fill='white' opacity='0.88'/%3E%3Cpath d='M1,-0.5 L10,4 L10,5 L1,2.5 Z' fill='white' opacity='0.88'/%3E%3C/g%3E%3C/svg%3E" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
+    <meta name="theme-color" content="#2d7fff" />
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="SkyLine - Next Generation Flight Reservation System. Book flights instantly with real-time availability and seamless confirmation." />
+    <meta name="keywords" content="flight booking, airline reservation, SkyLine, travel, tickets" />
+    <meta name="author" content="Ankit Rout" />
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <!-- Open Graph (for sharing on WhatsApp, LinkedIn etc) -->
+    <meta property="og:title" content="SkyLine - Flight Reservation System" />
+    <meta property="og:description" content="Book flights instantly with real-time availability and seamless confirmation." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://skyline-flight.vercel.app" />
 
-    <title>Airline Reservation System</title>
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="SkyLine ✈" />
+    <meta name="twitter:description" content="Next-Gen Flight Reservation System" />
+
+    <title>SkyLine ✈ | Flight Reservation</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
-
-
   </body>
 </html>
