@@ -1,0 +1,13 @@
+# Backend
+backend/target/
+backend/.idea/
+backend/.settings/
+backend/.classpath
+backend/.factorypath
+backend/.metadata/
+backend/src/main/resources/application.properties
+
+# Frontend
+frontend/node_modules/
+frontend/build/
+frontend/.env
