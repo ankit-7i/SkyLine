@@ -83,7 +83,7 @@ const UserRegister = () => {
   const saveUser = (e) => {
     e.preventDefault();
     setLoading(true);
-    fetch("http://localhost:8080/api/user/register", {
+    fetch(`${API_BASE_URL}/api/user/register", {
       method: "POST",
       headers: { Accept: "application/json", "Content-Type": "application/json" },
       body: JSON.stringify(user),

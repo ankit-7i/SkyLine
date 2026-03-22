@@ -19,7 +19,7 @@ const BookFlight = () => {
   const handleInput = (e) => setBookFlight({ ...bookFlight, [e.target.name]: e.target.value });
 
   useEffect(() => {
-    axios.get("http://localhost:8080/api/flight/class/all").then(r => setAllFlightClass(r.data || [])).catch(() => {});
+    axios.get(`${API_BASE_URL}/api/flight/class/all").then(r => setAllFlightClass(r.data || [])).catch(() => {});
   }, []);
 
   const bookSeat = (e) => {
@@ -30,7 +30,7 @@ const BookFlight = () => {
     }
     setLoading(true);
     bookFlight.passengerId = passenger.id;
-    fetch("http://localhost:8080/api/flight/book/add", {
+    fetch(`${API_BASE_URL}/api/flight/book/add", {
       method: "POST",
       headers: { Accept: "application/json", "Content-Type": "application/json", Authorization: "Bearer " + passengerToken },
       body: JSON.stringify(bookFlight),

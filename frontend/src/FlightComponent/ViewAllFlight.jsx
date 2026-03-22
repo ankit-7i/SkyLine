@@ -18,7 +18,7 @@ const ViewAllFlight = () => {
   const handleTemp = (e) => setTempSearch({ ...tempSearch, [e.target.name]: e.target.value });
 
   useEffect(() => {
-    axios.get("http://localhost:8080/api/airport/fetch/all")
+    axios.get(`${API_BASE_URL}/api/airport/fetch/all")
       .then(r => setAirports(r.data.airports || []))
       .catch(() => {});
   }, []);
@@ -29,8 +29,8 @@ const ViewAllFlight = () => {
     setLoading(true);
     const hasSearch = searchRequest.startTime && searchRequest.endTime && searchRequest.fromAirportId && searchRequest.toAirportId;
     const url = hasSearch
-      ? `http://localhost:8080/api/flight/search?startTime=${toEpoch(searchRequest.startTime)}&endTime=${toEpoch(searchRequest.endTime)}&fromAirportId=${searchRequest.fromAirportId}&endAirportId=${searchRequest.toAirportId}`
-      : "http://localhost:8080/api/flight/fetch/all";
+      ? `${API_BASE_URL}/api/flight/search?startTime=${toEpoch(searchRequest.startTime)}&endTime=${toEpoch(searchRequest.endTime)}&fromAirportId=${searchRequest.fromAirportId}&endAirportId=${searchRequest.toAirportId}`
+      : `${API_BASE_URL}/api/flight/fetch/all";
     axios.get(url).then(r => { setFlights(r.data.flights || []); setLoading(false); }).catch(() => setLoading(false));
   }, [searchRequest]);
 

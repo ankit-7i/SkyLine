@@ -12,7 +12,7 @@ const MyWallet = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    axios.get(`http://localhost:8080/api/user/passenger/wallet/fetch?userId=${user.id}`, {
+    axios.get(`${API_BASE_URL}/api/user/passenger/wallet/fetch?userId=${user.id}`, {
       headers: { Authorization: "Bearer " + passengerToken },
     }).then(r => setWalletAmount(r.data)).catch(() => {});
   }, []);
@@ -24,7 +24,7 @@ const MyWallet = () => {
       return;
     }
     setLoading(true);
-    fetch("http://localhost:8080/api/user/add/wallet/money", {
+    fetch(`${API_BASE_URL}/api/user/add/wallet/money", {
       method: "POST",
       headers: { Accept: "application/json", "Content-Type": "application/json", Authorization: "Bearer " + passengerToken },
       body: JSON.stringify({ userId: user.id, walletAmount: amount }),
