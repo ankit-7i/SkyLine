@@ -19,7 +19,7 @@ const BookFlight = () => {
   const handleInput = (e) => setBookFlight({ ...bookFlight, [e.target.name]: e.target.value });
 
   useEffect(() => {
-    axios.get(`${API_BASE_URL}/api/flight/class/all").then(r => setAllFlightClass(r.data || [])).catch(() => {});
+    axios.get(`${API_BASE_URL}/api/flight/class/all`).then(r => setAllFlightClass(r.data || [])).catch(() => {});
   }, []);
 
   const bookSeat = (e) => {
@@ -30,7 +30,7 @@ const BookFlight = () => {
     }
     setLoading(true);
     bookFlight.passengerId = passenger.id;
-    fetch(`${API_BASE_URL}/api/flight/book/add", {
+    fetch(`${API_BASE_URL}/api/flight/book/add`, {
       method: "POST",
       headers: { Accept: "application/json", "Content-Type": "application/json", Authorization: "Bearer " + passengerToken },
       body: JSON.stringify(bookFlight),
@@ -49,11 +49,7 @@ const BookFlight = () => {
   };
 
   const InfoRow = ({ label, value }) => (
-    <div style={{
-      display: "flex", justifyContent: "space-between", alignItems: "center",
-      padding: "12px 0",
-      borderBottom: "1px solid rgba(255,255,255,0.05)",
-    }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
       <span style={{ color: "#7a8ba8", fontSize: "0.82rem", fontFamily: "'Syne', sans-serif", fontWeight: 600, letterSpacing: "0.5px", textTransform: "uppercase" }}>{label}</span>
       <span style={{ color: "#e8eef8", fontSize: "0.9rem", fontWeight: 500 }}>{value}</span>
     </div>
@@ -65,13 +61,9 @@ const BookFlight = () => {
         <h1 className="section-heading">Book Your Seat</h1>
         <p className="section-sub">Flight {flight.flightNumber} — {flight.departureAirport?.name} → {flight.arrivalAirport?.name}</p>
       </div>
-
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
-        {/* Flight summary */}
         <div className="glass-card" style={{ padding: "28px" }}>
-          <h3 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "1rem", marginBottom: "16px", color: "#4d9fff" }}>
-            ✈ Flight Details
-          </h3>
+          <h3 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "1rem", marginBottom: "16px", color: "#4d9fff" }}>✈ Flight Details</h3>
           <InfoRow label="Airplane" value={flight.airplane?.name} />
           <InfoRow label="Registration" value={flight.airplane?.registrationNumber} />
           <InfoRow label="From" value={flight.departureAirport?.name} />
@@ -80,14 +72,9 @@ const BookFlight = () => {
           <InfoRow label="Arrival" value={formatDate(flight.arrivalTime)} />
           <InfoRow label="Status" value={flight.status} />
         </div>
-
-        {/* Fare + booking */}
         <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          {/* Fare card */}
           <div className="glass-card" style={{ padding: "28px" }}>
-            <h3 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "1rem", marginBottom: "16px", color: "#f0c040" }}>
-              💺 Seat Fares
-            </h3>
+            <h3 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "1rem", marginBottom: "16px", color: "#f0c040" }}>💺 Seat Fares</h3>
             {[
               { label: "Economy", value: flight.economySeatFare },
               { label: "Business", value: flight.businessSeatFare },
@@ -99,17 +86,12 @@ const BookFlight = () => {
               </div>
             ))}
           </div>
-
-          {/* Booking form */}
           <div className="glass-card" style={{ padding: "28px" }}>
-            <h3 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "1rem", marginBottom: "20px", color: "#e8eef8" }}>
-              📋 Your Booking
-            </h3>
+            <h3 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "1rem", marginBottom: "20px", color: "#e8eef8" }}>📋 Your Booking</h3>
             <form onSubmit={bookSeat}>
               <div style={{ marginBottom: "16px" }}>
                 <label className="label-custom">Number of Passengers</label>
-                <input type="number" name="totalPassengers" min="1" placeholder="e.g. 2"
-                  onChange={handleInput} value={bookFlight.totalPassengers} required className="input-custom" />
+                <input type="number" name="totalPassengers" min="1" placeholder="e.g. 2" onChange={handleInput} value={bookFlight.totalPassengers} required className="input-custom" />
               </div>
               <div style={{ marginBottom: "24px" }}>
                 <label className="label-custom">Seat Class</label>
@@ -118,8 +100,7 @@ const BookFlight = () => {
                   {allFlightClass.map(fc => <option key={fc} value={fc}>{fc}</option>)}
                 </select>
               </div>
-              <button type="submit" className="btn-gold-custom" disabled={loading}
-                style={{ width: "100%", padding: "14px", fontSize: "1rem", opacity: loading ? 0.7 : 1 }}>
+              <button type="submit" className="btn-gold-custom" disabled={loading} style={{ width: "100%", padding: "14px", fontSize: "1rem", opacity: loading ? 0.7 : 1 }}>
                 {loading ? "Booking..." : "Confirm Booking →"}
               </button>
             </form>
