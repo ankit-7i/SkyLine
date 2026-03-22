@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
+import API_BASE_URL from "../config";
 
 const MyWallet = () => {
   const passengerToken = sessionStorage.getItem("passenger-jwtToken");

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer } from "react-toastify";
+import API_BASE_URL from "../config";
 
 const ViewAllFlight = () => {
   const navigate = useNavigate();

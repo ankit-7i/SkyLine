@@ -3,6 +3,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
+import API_BASE_URL from "../config";
 
 const BookFlight = () => {
   const passenger = JSON.parse(sessionStorage.getItem("active-passenger"));

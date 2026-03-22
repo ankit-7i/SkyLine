@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate, Link } from "react-router-dom";
+import API_BASE_URL from "../config";
 
 const S = {
   label: {
