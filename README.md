@@ -8,6 +8,7 @@ A full stack flight reservation web application.
 
 \## Tech Stack
 
+
 \- \*\*Frontend:\*\* React 18, CSS3
 
 \- \*\*Backend:\*\* Spring Boot 3, Java 17, JWT
